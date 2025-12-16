@@ -82,6 +82,7 @@ Railway can host both your frontend and backend, plus provides PostgreSQL.
 2. Create a new project
 3. Click "New" → "Database" → "Add PostgreSQL"
 4. Copy the `DATABASE_URL` from the database service
+postgresql://postgres:IRZQiXchFSuukIdBnujdreEjxEnZyTme@postgres.railway.internal:5432/railway
 
 #### Step 2: Deploy Backend
 
