@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { execSync } from 'child_process'
 import { prisma } from './lib/prisma.js'
 import { hashPassword, verifyPassword, generateToken, getUserFromToken } from './lib/auth.js'
 import { generateChatResponse } from './lib/openai.js'
@@ -302,6 +303,55 @@ app.get('/api/messages', authenticateToken, async (req, res) => {
   }
 })
 
+// Check if tables exist in database
+async function checkTablesExist() {
+  try {
+    // Try to query User table
+    await prisma.user.findFirst()
+    // Try to query Message table
+    await prisma.message.findFirst()
+    return true
+  } catch (error) {
+    // If tables don't exist, Prisma will throw an error
+    if (error.message.includes('does not exist') || 
+        error.message.includes('relation') ||
+        error.message.includes('Unknown table')) {
+      return false
+    }
+    // Other errors, re-throw
+    throw error
+  }
+}
+
+// Sync database schema (create tables if they don't exist)
+async function syncDatabaseSchema() {
+  try {
+    console.log('\n📊 Syncing database schema...')
+    
+    // Generate Prisma Client
+    console.log('   Generating Prisma Client...')
+    execSync('npm run db:generate', {
+      cwd: __dirname,
+      stdio: 'pipe'
+    })
+    
+    // Push schema to database
+    console.log('   Pushing schema to database...')
+    execSync('npm run db:push', {
+      cwd: __dirname,
+      stdio: 'pipe',
+      env: { ...process.env }
+    })
+    
+    console.log('✅ Database schema synced successfully')
+    return true
+  } catch (error) {
+    console.error('❌ Failed to sync database schema:')
+    console.error(`   ${error.message}`)
+    return false
+  }
+}
+
 // Database connection check function
 async function checkDatabaseConnection() {
   try {
@@ -319,6 +369,35 @@ async function checkDatabaseConnection() {
     await prisma.$connect()
     await prisma.$queryRaw`SELECT 1`
     
+    // Check if tables exist
+    const tablesExist = await checkTablesExist()
+    if (!tablesExist) {
+      console.log('⚠️  Database tables not found')
+      
+      // Auto-sync if enabled (default: true in production, false in development)
+      const autoSync = process.env.AUTO_SYNC_DB !== 'false'
+      if (autoSync || process.env.NODE_ENV === 'production') {
+        console.log('   Attempting to create tables...')
+        const synced = await syncDatabaseSchema()
+        if (!synced) {
+          console.error('\n   💡 Run manually: npm run db:push')
+          console.error('   Or use: node scripts/init-db.js')
+          return false
+        }
+        // Verify tables exist after sync
+        const verified = await checkTablesExist()
+        if (!verified) {
+          console.error('   Tables still not found after sync')
+          return false
+        }
+      } else {
+        console.error('\n   💡 Tables need to be created. Run:')
+        console.error('      npm run db:push')
+        console.error('   Or: node scripts/init-db.js')
+        return false
+      }
+    }
+    
     // Try a simple query to verify
     const result = await prisma.$queryRaw`SELECT version()`
     console.log('✅ Database connected successfully')
@@ -328,12 +407,26 @@ async function checkDatabaseConnection() {
     console.error('\n❌ Database connection failed:')
     console.error(`   Error: ${error.message}`)
     
-    if (error.message.includes('Environment variable not found')) {
+    // Railway-specific error detection
+    const isRailway = process.env.DATABASE_URL?.includes('railway') || 
+                      error.message.includes('railway.internal') ||
+                      error.message.includes('railway.app')
+    
+    if (isRailway) {
+      console.error('\n   🚂 Railway Database Connection Issue:')
+      console.error('   1. Check that PostgreSQL service is running in Railway')
+      console.error('   2. Ensure DATABASE_URL includes ?sslmode=require')
+      console.error('   3. Verify backend service is linked to PostgreSQL service')
+      console.error('   4. Check Railway service logs for more details')
+      console.error('   See RAILWAY_DB_FIX.md for detailed steps')
+    } else if (error.message.includes('Environment variable not found')) {
       console.error('\n   💡 Solution: Make sure DATABASE_URL is set in backend/.env file')
-    } else if (error.message.includes('P1001') || error.message.includes('ECONNREFUSED')) {
+    } else if (error.message.includes('P1001') || error.message.includes('ECONNREFUSED') || error.message.includes("Can't reach database server")) {
       console.error('\n   💡 Solution: Is PostgreSQL running?')
-      console.error('      Check: psql -l (should list databases)')
-      console.error('      Start: brew services start postgresql@14 (macOS)')
+      if (!isRailway) {
+        console.error('      Check: psql -l (should list databases)')
+        console.error('      Start: brew services start postgresql@14 (macOS)')
+      }
     } else if (error.message.includes('P1000') || error.message.includes('password')) {
       console.error('\n   💡 Solution: Check your database credentials in DATABASE_URL')
     } else if (error.message.includes('does not exist')) {

@@ -91,7 +91,7 @@ postgresql://postgres:IRZQiXchFSuukIdBnujdreEjxEnZyTme@postgres.railway.internal
 3. Railway will auto-detect it's a Node.js app
 4. **Configure the service:**
    - **Root Directory**: `backend`
-   - **Build Command**: `npm install && npm run db:generate`
+   - **Build Command**: `npm install && npm run db:generate && npm run db:push`
    - **Start Command**: `npm start`
 5. **Add Environment Variables:**
    - `DATABASE_URL` (from PostgreSQL service)
@@ -119,15 +119,26 @@ postgresql://postgres:IRZQiXchFSuukIdBnujdreEjxEnZyTme@postgres.railway.internal
 2. Update `FRONTEND_URL` to your frontend URL
 3. Redeploy the backend
 
-#### Step 5: Run Database Migrations
+#### Step 5: Database Tables (Auto-Created!)
 
+**Good News**: Tables are now **automatically created** when the server starts!
+
+The server will:
+1. Check if tables exist
+2. If not, automatically run `db:push` to create them
+3. Continue startup
+
+**Manual Option** (if auto-sync fails):
 1. In Railway, go to your backend service
-2. Click on the service → "Deployments" → "View Logs"
-3. Open a terminal/console in Railway
-4. Run:
+2. Click on the service → "Deployments" → "View Logs" → "Shell"
+3. Run:
    ```bash
    cd backend
    npm run db:push
+   ```
+   Or use the init script:
+   ```bash
+   npm run db:init
    ```
 
 ### Option 2: Render

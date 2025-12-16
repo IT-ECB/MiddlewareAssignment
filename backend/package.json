@@ -9,6 +9,7 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
+    "db:init": "node scripts/init-db.js",
     "create-demo-user": "node scripts/create-demo-user.js"
   },
   "dependencies": {
