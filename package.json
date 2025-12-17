@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "node scripts/start-frontend.js",
+    "start": "vite",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "vite",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {

@@ -424,8 +424,8 @@ async function checkDatabaseConnection() {
     } else if (error.message.includes('P1001') || error.message.includes('ECONNREFUSED') || error.message.includes("Can't reach database server")) {
       console.error('\n   💡 Solution: Is PostgreSQL running?')
       if (!isRailway) {
-        console.error('      Check: psql -l (should list databases)')
-        console.error('      Start: brew services start postgresql@14 (macOS)')
+      console.error('      Check: psql -l (should list databases)')
+      console.error('      Start: brew services start postgresql@14 (macOS)')
       }
     } else if (error.message.includes('P1000') || error.message.includes('password')) {
       console.error('\n   💡 Solution: Check your database credentials in DATABASE_URL')
