@@ -91,8 +91,10 @@ postgresql://postgres:IRZQiXchFSuukIdBnujdreEjxEnZyTme@postgres.railway.internal
 3. Railway will auto-detect it's a Node.js app
 4. **Configure the service:**
    - **Root Directory**: `backend`
-   - **Build Command**: `npm install && npm run db:generate && npm run db:push`
-   - **Start Command**: `npm start`
+   - **Build Command**: `cd backend && npm install && npm run db:generate && npm run db:push`
+   - **Start Command**: `cd backend && npm start`
+   
+   **Important**: Always use `cd backend &&` prefix for both Build and Start commands to ensure they run in the correct directory.
 5. **Add Environment Variables:**
    - `DATABASE_URL` (from PostgreSQL service)
    - `OPENAI_API_KEY`
@@ -163,8 +165,8 @@ Render can also host both frontend and backend.
    - **Start Command**: `npm start`
 4. **Add Environment Variables:**
    - `DATABASE_URL` (use the Internal Database URL)
-   - `OPENAI_API_KEY`
-   - `JWT_SECRET`
+     - `OPENAI_API_KEY`
+     - `JWT_SECRET`
    - `PORT=5000`
    - `FRONTEND_URL` (update after frontend deployment)
 5. Click "Create Web Service"
@@ -446,7 +448,7 @@ When submitting, provide:
 - **Demo Credentials**:
   - Email: `demo@example.com` (or your chosen email)
   - Password: `demo123` (or your chosen password)
-
+  
 **Important**: Do not hardcode demo credentials in the repository. Create them through the app or using the provided script after deployment.
 
 ## Quick Reference
