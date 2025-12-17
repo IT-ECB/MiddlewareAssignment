@@ -1,202 +1,177 @@
-# AI Chatbot - Middleware Assignment
+# AI Chatbot (Middleware Assignment)
 
-An intelligent AI chatbot application that learns from conversations and can generate personality profiles based on chat history.
+This is a full-stack AI chatbot application with authentication, chat history, and personality profiling based on your conversations.
 
 ## Features
 
-- 💬 **Free-form Chatting**: Chat naturally with an AI assistant powered by OpenAI
-- 🧠 **Conversation Memory**: All conversations are stored and used as context for future interactions
-- 👤 **Personality Profiling**: After a few messages, ask "Who am I?" or "Tell me about myself" to get a personalized personality profile derived from your chat history
-- 🔐 **Authentication**: Secure user authentication with JWT tokens
-- 🎨 **Modern UI**: Clean, responsive interface built with React + Vite, Tailwind CSS, and shadcn/ui components
+- **Auth**: Register/login with JWT
+- **Chat**: Context-aware chat powered by OpenAI
+- **Memory**: Stores messages in PostgreSQL using Prisma
+- **Personality profiling**: Ask prompts like “Who am I?” after a few messages
+- **Modern UI**: React + Vite + Tailwind UI
 
 ## Tech Stack
 
-- **Frontend**: React + Vite, JavaScript, Tailwind CSS
-- **Backend**: Express.js REST API (separate server)
-- **Database**: PostgreSQL with Prisma ORM (local server)
-- **AI**: OpenAI GPT-4o-mini
-- **Authentication**: JWT with bcrypt
-- **Testing**: Vitest
+- **Frontend**: React, Vite, Tailwind CSS
+- **Backend**: Node.js, Express
+- **Database**: PostgreSQL + Prisma
+- **Auth**: JWT + bcrypt
+- **AI**: OpenAI
 
-## Prerequisites
+## Repository Layout
 
-- Node.js 18+ and npm/yarn
-- PostgreSQL database server (local installation)
-- OpenAI API key
+```
+MiddlewareAssignment/
+├── src/                   # React frontend
+├── backend/               # Express + Prisma backend
+│   ├── prisma/schema.prisma
+│   ├── server.js
+│   └── scripts/
+└── vite.config.js
+```
 
-## Project Structure
+## Prerequisites (Local)
 
-This project is split into **Frontend** and **Backend**:
+- Node.js **18+**
+- PostgreSQL **14+**
+- An OpenAI API key
 
-- **Frontend**: React + Vite application in the root directory
-- **Backend**: Express.js API server in `/backend` directory
+## Local Setup (Step-by-step)
 
-See [SETUP.md](./SETUP.md) for detailed setup instructions.
+### 1) Clone and install dependencies
 
-## Quick Setup
+Frontend (root):
 
-### Backend Setup
+```bash
+cd MiddlewareAssignment
+npm install
+```
+
+Backend:
 
 ```bash
 cd backend
 npm install
 ```
 
+### 2) Create the database (PostgreSQL)
+
+Create a local database (example name: `chatbot`):
+
+```bash
+createdb chatbot
+```
+
+If you don’t have `createdb`, open `psql` and create it from there.
+
+### 3) Configure environment variables
+
+#### Backend: `backend/.env`
+
 Create `backend/.env`:
+
 ```env
-DATABASE_URL="postgresql://roopansh@localhost:5432/chatbot?schema=public"
-OPENAI_API_KEY="your-openai-api-key"
-JWT_SECRET="your-secret-key"
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/chatbot?schema=public"
+OPENAI_API_KEY="sk-..."
+JWT_SECRET="replace-with-a-long-random-secret"
 PORT=5000
 FRONTEND_URL="http://localhost:3000"
 ```
 
-```bash
-npm run db:generate
-npm run db:push
-npm run dev
-```
+Notes:
+- Replace `USER:PASSWORD` with your local Postgres credentials.
+- `FRONTEND_URL` is used for CORS.
 
-Backend runs on `http://localhost:5000`
+#### Frontend: `.env` (root)
 
-### Frontend Setup
+Create `.env` in the project root:
 
-```bash
-# From project root
-npm install
-```
-
-Create `.env`:
 ```env
 VITE_API_URL="http://localhost:5000"
 ```
 
+### 4) Create tables with Prisma
+
+From `backend/`:
+
 ```bash
+npm run db:generate
+npm run db:push
+```
+
+This will generate the Prisma client and create the tables (`User`, `Message`) in your Postgres database.
+
+### 5) Start the app (two terminals)
+
+Terminal A (backend):
+
+```bash
+cd backend
 npm run dev
 ```
 
-Frontend runs on `http://localhost:3000`
+Backend runs on:
+- `http://localhost:5000`
+- Health check: `http://localhost:5000/api/health`
 
-**See [SETUP.md](./SETUP.md) for detailed instructions.**
-
-## Demo Credentials
-
-For testing purposes, you can:
-
-1. **Create an account** through the sign-up page on the app
-2. **Use the demo user script** (for local development):
-   ```bash
-   npm run create-demo-user
-   ```
-   Or:
-   ```bash
-   node scripts/create-demo-user.js
-   ```
-   This will create a demo user with:
-   - **Email**: `demo@example.com`
-   - **Password**: `demo123`
-
-**Note**: Demo credentials are not hardcoded in the codebase. For production, demo credentials should be provided separately in the submission documentation.
-
-## Usage
-
-1. **Sign Up/Login**: Create an account or log in with existing credentials
-2. **Start Chatting**: Begin a conversation with the AI assistant
-3. **Build Context**: Have a few conversations to build up context
-4. **Ask About Yourself**: Try asking:
-   - "Who am I?"
-   - "Tell me about myself"
-   - "What do you know about me?"
-   - "Describe me"
-   - "What am I like?"
-
-The AI will analyze your conversation history and generate a personality profile!
-
-## Running Tests
+Terminal B (frontend):
 
 ```bash
-# Run tests once
-npm test
-
-# Run tests in watch mode
-npm run test:watch
+cd MiddlewareAssignment
+npm run dev
 ```
 
-## Building for Production
+Frontend runs on:
+- `http://localhost:3000`
+
+## Demo user (optional)
+
+From `backend/`:
 
 ```bash
-npm run build
-npm start
+npm run create-demo-user
 ```
 
-## Deployment
+Defaults:
+- Email: `demo@example.com`
+- Password: `demo123`
 
-### Option 1: Vercel (Recommended)
+You can also set:
+- `DEMO_EMAIL`
+- `DEMO_PASSWORD`
 
-1. Push your code to GitHub
-2. Import your repository in [Vercel](https://vercel.com)
-3. Add environment variables in Vercel dashboard
-4. Deploy!
+## Common Problems (Local)
 
-### Option 2: Railway
+### CORS error in browser
 
-1. Create a new project on [Railway](https://railway.app)
-2. Connect your GitHub repository
-3. Add PostgreSQL service
-4. Add environment variables
-5. Deploy!
+- Ensure backend `.env` has:
+  - `FRONTEND_URL="http://localhost:3000"`
+- Restart the backend after changing env vars.
 
-### Environment Variables for Production
+### Prisma errors / tables not created
 
-Make sure to set these in your hosting platform:
+From `backend/`:
 
-- `DATABASE_URL`: Your PostgreSQL connection string
-- `OPENAI_API_KEY`: Your OpenAI API key
-- `JWT_SECRET`: A strong, random secret key
-
-## Project Structure
-
-```
-├── app/
-│   ├── api/              # API routes
-│   │   ├── auth/         # Authentication endpoints
-│   │   ├── chat/         # Chat endpoint
-│   │   └── messages/     # Messages retrieval
-│   ├── chat/             # Chat page
-│   ├── layout.tsx        # Root layout
-│   └── page.tsx          # Login/signup page
-├── components/
-│   └── ui/               # Reusable UI components
-├── lib/                  # Utility functions
-│   ├── auth.ts          # Authentication helpers
-│   ├── openai.ts        # OpenAI integration
-│   ├── personality.ts   # Personality profiling
-│   └── prisma.ts        # Prisma client
-├── prisma/
-│   └── schema.prisma    # Database schema
-└── test/                # Test files
+```bash
+npm run db:generate
+npm run db:push
 ```
 
-## Core Features Implementation
+If needed:
 
-### Conversation Storage
-All messages are stored in the database with user association, allowing the AI to maintain context across sessions.
+```bash
+npm run db:init
+```
 
-### Personality Profiling
-When a user asks about themselves, the system:
-1. Retrieves the last 50 messages from the conversation history
-2. Sends them to OpenAI with a specialized prompt
-3. Generates a personality profile based on interests, communication style, preferences, and traits
+### Frontend can’t connect to backend
 
-### Context-Aware Responses
-The AI uses the last 20 messages as context for generating responses, ensuring continuity in conversations.
+- Ensure root `.env` has:
+  - `VITE_API_URL="http://localhost:5000"`
+- Check backend is running: `http://localhost:5000/api/health`
 
-## License
+## Production Notes (Railway)
 
-This project is created for the Middleware assignment.
+- Frontend uses `vite preview` and must bind to Railway’s `$PORT`. This repo’s `npm start` is already set up for that.
+- Backend CORS uses `FRONTEND_URL` and also supports `ALLOWED_ORIGINS` (comma-separated) if you want extra origins.
 
-## Contact
-
-For questions or issues, please contact the development team.
 
