@@ -27,7 +27,6 @@ async function updateDemoUser() {
     })
 
     if (!existing) {
-      console.log(`User with email ${email} does not exist. Creating...`)
       const hashedPassword = await bcrypt.hash(password, 10)
       const user = await prisma.user.create({
         data: {
@@ -36,20 +35,13 @@ async function updateDemoUser() {
           name: 'Demo User',
         },
       })
-      console.log('✅ Demo user created successfully!')
-      console.log(`   Email: ${email}`)
-      console.log(`   Password: ${password}`)
+      console.log(`Demo user ready: ${email} (${user.id})`)
       return
     }
 
     // Update password
-    console.log(`Updating password for user: ${email}`)
     const hashedPassword = await bcrypt.hash(password, 10)
-    
-    // Verify the hash works
-    const testVerify = await bcrypt.compare(password, hashedPassword)
-    console.log(`Password hash test: ${testVerify ? '✅' : '❌'}`)
-    
+
     await prisma.user.update({
       where: { email },
       data: {
@@ -57,18 +49,9 @@ async function updateDemoUser() {
       },
     })
 
-    // Verify it was saved correctly
-    const updated = await prisma.user.findUnique({
-      where: { email },
-    })
-    const verifyAfterSave = await bcrypt.compare(password, updated.password)
-    
-    console.log('✅ Demo user password updated successfully!')
-    console.log(`   Email: ${email}`)
-    console.log(`   Password: ${password}`)
-    console.log(`   Verification test: ${verifyAfterSave ? '✅ PASS' : '❌ FAIL'}`)
+    console.log(`Demo user password updated: ${email}`)
   } catch (error) {
-    console.error('❌ Error updating demo user:', error)
+    console.error('Error updating demo user:', error?.message || error)
     process.exit(1)
   } finally {
     await prisma.$disconnect()

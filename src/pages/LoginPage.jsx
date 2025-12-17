@@ -33,10 +33,6 @@ export default function LoginPage() {
         ? { email, password }
         : { email, password, name: name || undefined }
 
-      console.log('🔵 [FRONTEND] Calling API:', endpoint)
-      console.log('🔵 [FRONTEND] Request body:', { ...body, password: '***' })
-      console.log('🔵 [FRONTEND] Full URL:', endpoint)
-
       let response
       try {
         response = await fetch(endpoint, {
@@ -46,24 +42,15 @@ export default function LoginPage() {
           },
           body: JSON.stringify(body),
         })
-        console.log('🔵 [FRONTEND] Response received!')
-        console.log('🔵 [FRONTEND] Status:', response.status, response.statusText)
-        console.log('🔵 [FRONTEND] Headers:', Object.fromEntries(response.headers.entries()))
       } catch (fetchError) {
-        console.error('❌ [FRONTEND] Fetch failed:', fetchError)
-        console.error('❌ [FRONTEND] Error type:', fetchError.constructor.name)
-        console.error('❌ [FRONTEND] Error message:', fetchError.message)
         throw new Error(`Network error: Cannot connect to backend. ${fetchError.message}`)
       }
 
       let data
       try {
         const text = await response.text()
-        console.log('🔵 [FRONTEND] Response text:', text)
         data = JSON.parse(text)
-        console.log('🔵 [FRONTEND] Parsed data:', data)
       } catch (parseError) {
-        console.error('❌ [FRONTEND] JSON parse error:', parseError)
         throw new Error(`Invalid response from server. Status: ${response.status}`)
       }
 
@@ -75,9 +62,8 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(data.user))
       navigate('/chat')
     } catch (err) {
-      console.error('❌ API Error:', err)
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        setError('Cannot connect to backend server. Make sure it\'s running on http://localhost:8000')
+        setError('Cannot connect to backend server. Please check the backend URL and CORS settings.')
       } else {
         setError(err instanceof Error ? err.message : 'Something went wrong')
       }

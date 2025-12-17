@@ -31,10 +31,6 @@ async function createDemoUser() {
     })
 
     if (existing) {
-      console.log(`User with email ${email} already exists.`)
-      console.log('Demo credentials:')
-      console.log(`  Email: ${email}`)
-      console.log(`  Password: ${password}`)
       return
     }
 
@@ -48,13 +44,9 @@ async function createDemoUser() {
       },
     })
 
-    console.log('Demo user created successfully!')
-    console.log('Demo credentials:')
-    console.log(`  Email: ${email}`)
-    console.log(`  Password: ${password}`)
-    console.log(`  User ID: ${user.id}`)
+    console.log(`Demo user ready: ${email} (${user.id})`)
   } catch (error) {
-    console.error('Error creating demo user:', error)
+    console.error('Error creating demo user:', error?.message || error)
     process.exit(1)
   } finally {
     await prisma.$disconnect()

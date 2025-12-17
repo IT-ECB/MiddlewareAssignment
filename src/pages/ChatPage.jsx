@@ -41,20 +41,18 @@ export default function ChatPage() {
     if (!token) return
 
     try {
-      console.log('🔵 Loading messages from:', API_ENDPOINTS.messages)
       const response = await fetch(API_ENDPOINTS.messages, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log('🔵 Messages response status:', response.status)
 
       if (response.ok) {
         const data = await response.json()
         setMessages(data.messages)
       }
     } catch (error) {
-      console.error('Failed to load messages:', error)
+      // Silent failure: messages will load on next successful request
     }
   }
 
@@ -82,7 +80,6 @@ export default function ChatPage() {
         return
       }
 
-      console.log('🔵 Sending chat message to:', API_ENDPOINTS.chat)
       const response = await fetch(API_ENDPOINTS.chat, {
         method: 'POST',
         headers: {
@@ -91,7 +88,6 @@ export default function ChatPage() {
         },
         body: JSON.stringify({ message: userMessage }),
       })
-      console.log('🔵 Chat response status:', response.status)
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -125,7 +121,6 @@ export default function ChatPage() {
         ]
       })
     } catch (error) {
-      console.error('Failed to send message:', error)
       // Remove temp message on error
       setMessages((prev) => prev.filter((msg) => msg.id !== tempUserMessage.id))
       alert('Failed to send message. Please try again.')
