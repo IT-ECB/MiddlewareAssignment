@@ -110,7 +110,7 @@ postgresql://postgres:IRZQiXchFSuukIdBnujdreEjxEnZyTme@postgres.railway.internal
 3. **Configure the service:**
    - **Root Directory**: `/` (root)
    - **Build Command**: `npm install && npm run build`
-   - **Start Command**: `npx vite preview --port $PORT --host`
+   - **Start Command**: `npm start` (runs `vite preview --host 0.0.0.0 --port $PORT`)
 4. **Add Environment Variables:**
    - `VITE_API_URL` = your backend URL (from Step 2)
 5. Railway will generate a URL for your frontend
