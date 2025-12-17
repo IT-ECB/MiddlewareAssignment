@@ -15,5 +15,14 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  // Needed for Railway: Vite preview blocks unknown Host headers by default.
+  // Allow Railway subdomains so `vite preview` works behind Railway routing.
+  preview: {
+    allowedHosts: [
+      'middlewareassignment-production-5b83.up.railway.app',
+      '.up.railway.app',
+      '.railway.app',
+    ],
+  },
 })
 
